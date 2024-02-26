@@ -16,11 +16,18 @@ async function getDataSource(llm: LLM) {
     chunkSize: CHUNK_SIZE,
     chunkOverlap: CHUNK_OVERLAP,
   });
+  const dbName = process.env.MONGODB_DATABASE;
+  const collectionName = process.env.MONGODB_VECTORS;
+  const indexName = process.env.MONGODB_VECTOR_INDEX;
+
+  if (!dbName || !collectionName || !indexName) {
+    throw new Error('One or more required environment variables are not set.');
+  }
   const store = new MongoDBAtlasVectorSearch({
     mongodbClient: client,
-    dbName: process.env.MONGODB_DATABASE,
-    collectionName: process.env.MONGODB_VECTORS,
-    indexName: process.env.MONGODB_VECTOR_INDEX,
+    dbName: dbName,
+    collectionName: collectionName,
+    indexName: indexName,
   });
 
   return await VectorStoreIndex.fromVectorStore(store, serviceContext);
